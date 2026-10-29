@@ -1,0 +1,6 @@
+body { max-width: 780px; margin: 3rem auto; }
+nav { display: flex; gap: 1.5rem; margin-bottom: 3rem; }
+form { display: grid; gap: 1rem; margin: 1.5rem 0; }
+input { display: block; padding: .75rem; margin-top: .5rem; }
+button { border: 0; border-radius: .5rem; background: #7dd3fc; color: #102030; }
+pre { white-space: pre-wrap; padding: 1rem; border: 1px solid #334155; }

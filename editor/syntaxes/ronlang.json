@@ -1,0 +1,11 @@
+{
+  "scopeName": "source.ronlang",
+  "patterns": [
+    {"name": "comment.line.number-sign.ronlang", "match": "#.*$"},
+    {"name": "string.quoted.double.ronlang", "begin": "\"", "end": "\"", "patterns": [{"name": "constant.character.escape", "match": "\\\\."}]},
+    {"name": "string.quoted.single.ronlang", "begin": "'", "end": "'", "patterns": [{"name": "constant.character.escape", "match": "\\\\."}]},
+    {"name": "keyword.control.ronlang", "match": "\\b(make|let|crear|guardar|show|mostrar|func|function|funcion|return|devolver|when|if|si|otherwise|else|sino|repeat|repetir|while|mientras|for|para|in|en|end|fin|break|romper|continue|continuar|use|usar|require|exigir|try|intentar|catch|capturar|raise|fallar|and|or|not|y|o|no|es|is|be)\\b"},
+    {"name": "constant.language.ronlang", "match": "\\b(true|false|null|verdadero|falso|nulo)\\b"},
+    {"name": "constant.numeric.ronlang", "match": "\\b[0-9]+(?:\\.[0-9]+)?\\b"}
+  ]
+}

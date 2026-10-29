@@ -1,0 +1,41 @@
+# A local website with an authenticated API, assets and a download.
+make site = app()
+# Set COOKIE_SECURE=true behind HTTPS. Local HTTP uses false.
+sessions(site, env("COOKIE_SECURE", "false") == "true")
+make demo_password = env("DEMO_PASSWORD")
+require demo_password != null
+make stored_password = password_hash(demo_password)
+make demo_password = null
+
+func sign_in(request)
+    require valid(request["body"], {"password": "text"})
+    when not password_verify(request["body"]["password"], stored_password)
+        return response({"error": "Invalid credentials"}, 401)
+    end
+    return login(request, "demo")
+end
+
+func profile(request)
+    when session_user(request) == null
+        return response({"error": "Sign in first"}, 401)
+    end
+    return {"user": session_user(request)}
+end
+
+post(site, "/api/login", sign_in)
+post(site, "/api/logout", logout)
+get(site, "/api/profile", profile)
+get(site, "/health", {"status": "ok"})
+static(site, "/assets/", "examples/site/assets")
+download(site, "/download", "examples/site/files/welcome.txt")
+
+make content = navigation({"Home": "/", "Download": "/download"})
+make content = content + heading("Built with RonLang")
+make content = content + paragraph("A website, file download and session-based API.")
+make content = content + stylesheet("/assets/style.css")
+make content = content + form("Sign in", "/api/login", ["password"], "result")
+make content = content + button("My profile", "/api/profile", "result")
+make content = content + form("Sign out", "/api/logout", [], "result")
+make content = content + output("result")
+get(site, "/", page("RonLang starter", content))
+serve(site, integer(env("PORT", "8000")), env("HOST", "127.0.0.1"))

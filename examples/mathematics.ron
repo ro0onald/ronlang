@@ -1,0 +1,13 @@
+make samples = [10, 12, 14, 16]
+show mean(samples)
+show stdev(samples)
+show sin(pi() / 2)
+show dot([1, 2, 3], [4, 5, 6])
+show matrix_multiply([[1, 2], [3, 4]], [[5], [6]])
+# Learn a linear relationship: output = 2 * input + 1.
+make model = fit_line([1, 2, 3, 4], [3, 5, 7, 9])
+show predict(model, 10)
+func double_value(value)
+    return value * 2
+end
+show map(double_value, samples)

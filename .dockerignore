@@ -1,0 +1,8 @@
+.git
+__pycache__
+*.sqlite3
+.env
+dist
+build
+*.egg-info
+work

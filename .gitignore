@@ -7,3 +7,16 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local runtime data
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.spec
+*.vsix

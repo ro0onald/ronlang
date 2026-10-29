@@ -1,0 +1,6 @@
+try
+    require 10 < 5
+catch error
+    show "Recovered: " + error["message"]
+    show error["line"]
+end

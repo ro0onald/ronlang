@@ -1,0 +1,24 @@
+services:
+  app:
+    build: ..
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      COOKIE_SECURE: "true"
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Set a private demo password}
+    restart: unless-stopped
+    expose: ["8000"]
+  proxy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?Set a domain pointing to this server}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+    restart: unless-stopped
+volumes:
+  caddy_data:
+  caddy_config:

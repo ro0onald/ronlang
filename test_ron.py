@@ -18,7 +18,7 @@ class RonTests(unittest.TestCase):
         return output.getvalue(), variables
 
     def test_original_example(self):
-        source = Path(__file__).with_name('hola.ron').read_text()
+        source = Path(__file__).with_name('hello.ron').read_text()
         self.assertEqual(self.execute(source)[0], '1\n2\n3\n4\n5\nLoop finished!\n')
 
     def test_arithmetic_and_comparisons(self):

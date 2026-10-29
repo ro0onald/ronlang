@@ -54,9 +54,9 @@ put(data, "count", i)
             try:
                 with urlopen(base) as response:
                     self.assertEqual(response.status, 200)
-                    self.assertIn('Consultar API', response.read().decode())
+                    self.assertIn('Call API', response.read().decode())
                 with urlopen(base + '/api/hello') as response:
-                    self.assertEqual(json.load(response)['message'], 'Hola desde RonLang')
+                    self.assertEqual(json.load(response)['message'], 'Hello from RonLang')
                     self.assertIn('application/json', response.headers['Content-Type'])
                 request = Request(base + '/api/echo', data=b'{"score":42}', method='POST')
                 with urlopen(request) as response:
@@ -85,5 +85,5 @@ put(data, "count", i)
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
             run_statements(Path('examples/basics.ron').read_text().splitlines(), {})
-        self.assertIn('Hola, Mia', output.getvalue())
+        self.assertIn('Hello, Mia', output.getvalue())
         self.assertIn('True', output.getvalue())

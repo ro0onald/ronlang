@@ -1,157 +1,177 @@
-# RonLang 0.3
+# RonLang 1.0 release candidate
 
-RonLang is an experimental programming language designed to be easy to learn
-and readable as it grows.
+RonLang is a small, high-level language for web prototypes, APIs, data and
+automation. English is the primary language for code, examples and tools.
+Spanish syntax aliases remain optional learning aids.
 
-## Requirements and execution
+This is **1.0.0rc1**, not a declaration of production stability. Core features
+are implemented and tested locally; deployment and platform validation have
+separate requirements described below.
 
-Python 3.10 or newer; no external packages required. In this folder, run:
+## Windows quick start
+
+Use the generated `ron.exe` directly, or run `RonLang-1.0.0rc1-setup.exe` to
+install it for your Windows account and add its directory to your user PATH.
+Open a new terminal after installation. The executable bundles Python: no
+separate Python installation is required for the core language.
 
 ```powershell
-python ron.py hola.ron
+ron --version
+ron new my-website
+ron my-website/main.ron
 ```
 
-If you use the Windows Python launcher, use `py ron.py hola.ron`.
-Without a filename, RonLang runs `hola.ron` in the current directory.
+Open http://127.0.0.1:8000. The starter includes a homepage, stylesheet,
+download and health endpoint. Keep the terminal running; Ctrl+C stops it.
+The Windows binary and installer are unsigned. The installer does not require
+administrator privileges. The portable package includes `uninstall.ps1`.
+The installed copy is also available at `%LOCALAPPDATA%\RonLang\bin\uninstall.ps1`.
 
-## Syntax
+For a source installation, use Python 3.10 or newer:
 
-- `show expression` displays a value.
-- `make name = expression` creates or updates a variable.
-- Numbers support `+`, `-`, `*`, `/`, `%`, parentheses and comparisons
-  (`==`, `!=`, `<`, `<=`, `>`, `>=`).
-- Quoted strings support concatenation with `+`. Both operands must be strings;
-  numbers are not automatically converted to text.
-- `when expression`, optional `otherwise`, and `end` select a branch.
-- `repeat expression` and `end` repeat a block 0 to 10000 times.
-- `func name(parameters)` and `end` define a function.
-- `return expression` exits the current function, including from nested blocks.
-  Bare `return`, or reaching the end, returns `None`.
-- Functions can be called as statements or inside expressions, including nested
-  calls and recursion. Arguments are positional and must match the parameter count.
+```powershell
+python -m pip install .
+ron --version
+```
 
-Indentation is for readability; `end` closes each block. Functions must be defined
-before they are called. Each call has local variables: parameters and `make`
-assignments inside the function do not change the caller's variables. Functions
-can read variables from the scope where they were defined, using their values at
-call time. Function definitions inside a call stay local to that call.
+Without installation, `python ron.py` accepts the same commands.
+The core library has no third-party runtime dependencies. PostgreSQL is optional.
 
-## Functions and strings
+## Your first program
 
 ```text
-func greet(name)
-    show "Hello, " + name
+make name = "Ronald"
+func greet(person)
+    return "Hello, " + person
 end
+show greet(name)
 
-func add(a, b)
-    return a + b
+for number in range(1, 4)
+    show number
 end
-
-greet("Ronald")
-make result = add(10, 20)
-show result
-show add(add(1, 2), 3) * 2
 ```
 
-Output:
+Run `ron hello.ron` to execute the original counter example. Blocks end with
+`end`; indentation is for readability. No semicolons are required.
 
-```text
-Hello, Ronald
-30
-12
-```
-
-## Conditions and loops
-
-```text
-make number = 1
-repeat 5
-    when number > 3
-        show "Large"
-    otherwise
-        show number
-    end
-    make number = number + 1
-end
-show "Loop finished!"
-```
-
-## Automated tests
-
-From the project folder:
-
-```powershell
-python -m unittest discover -v
-```
-
-Tests cover the original example, arithmetic, comparisons, nested conditions,
-functions, recursion, local scope, returns from loops, string concatenation,
-invalid programs, and command-line execution and errors.
-
-## Project status
-
-RonLang is an early experimental project. Syntax and features may change.
-It is not a security sandbox for untrusted programs.
-
-## Novedades 0.3: web y juegos
-
-Ejecuta desde esta carpeta (Ctrl+C para detener el servidor):
-
-```powershell
-python ron.py examples/web.ron
-```
-
-Abre http://127.0.0.1:8000. El botón consulta una API JSON escrita en RonLang.
-`GET /api/hello` devuelve un saludo; `POST /api/echo` devuelve el cuerpo JSON recibido.
-Para probar el juego, detén primero el servidor anterior y ejecuta:
-
-```powershell
-python ron.py examples/game.ron
-```
-
-Abre la misma dirección. Usa flechas o WASD para recoger cuadrados dorados.
-`game(title, width, height, speed, color)` genera esa escena 2D configurable;
-no es todavía un motor general con scripting de físicas, niveles o escenas.
-
-### Web en pocas instrucciones
+## A website with a download
 
 ```text
 make site = app()
-func welcome(request)
-    return {"message": "Hola", "ok": true}
-end
-get(site, "/api", welcome)
-get(site, "/", page("Mi web", heading("Bienvenido")))
+make content = heading("My website")
+make content = content + paragraph("Download the welcome file below.")
+make content = content + link("Download", "/download")
+get(site, "/", page("Downloads", content))
+download(site, "/download", "examples/site/files/welcome.txt")
 serve(site, 8000)
 ```
 
-`get` y `post` reciben una aplicación, ruta exacta y función (o contenido fijo).
-La función recibe un diccionario con `method`, `path`, `query` y `body`.
-Los parámetros de consulta son listas: `request["query"]["name"][0]`.
-Los cuerpos POST deben ser JSON (máximo 1 MiB). Las cadenas se envían como HTML;
-otros valores, como JSON. Rutas desconocidas devuelven 404.
+`download` sends the actual bytes with an attachment header. `static(site,
+"/assets/", "assets")` serves an existing directory, without directory listings.
+Paths are resolved under their configured root; traversal and escaping symlinks
+are rejected. File paths are relative to the process working directory, unlike
+`use`, which resolves relative to the importing source file.
 
-Frontend: `page(title, content)`, `heading(text)`, `paragraph(text)`,
-`button(label, endpoint, target)` y `output(target)`. El botón muestra el JSON
-de un GET en el área indicada. Los componentes de texto escapan HTML; `page`
-recibe contenido HTML de confianza y permite añadir CSS y JavaScript propios.
-El servidor usa solo la interfaz local. Es para desarrollo; aún no ofrece
-autenticación, HTTPS, base de datos ni despliegue de producción.
+## Authenticated example
 
-### Lenguaje y biblioteca
+From the repository root in PowerShell:
 
-- `# comentario` en su propia línea; `true`, `false`, `null`.
-- Listas `[1, 2]`, diccionarios `{"name": "Ron"}`, acceso `items[0]`.
-- `for name in collection ... end` y `while condition ... end`.
-- `and`, `or` (cortocircuito), `not`, números negativos, `**` y `//`.
-- Conversión: `text(value)`, `number(value)`, `integer(value)`.
-- Colecciones: `length(value)`, `range(stop)` o `range(start, stop, step)`,
-  `append(list, value)`, `put(collection, key, value)`.
-- Matemáticas: `abs`, `round`, `min`, `max`, `sqrt`, `random(min, max)` inclusivo.
-- Entrada y archivos UTF-8: `ask(prompt)`, `read(path)`, `write(path, text)`.
-- JSON: `json(value)`, `parse_json(text)`.
+```powershell
+$env:DEMO_PASSWORD = 'choose-a-private-password'
+ron examples/site/main.ron
+```
 
-`examples/basics.ron` demuestra colecciones y bucles. Los bucles `while` no
-tienen límite automático. No hay todavía `break`, importaciones, clases,
-editor visual, 3D, exportación nativa, multijugador ni motor de físicas.
-Esta versión es una base funcional, no la finalización de todas esas capacidades.
+The page includes navigation, CSS, a download, sign-in form, profile button and
+sign-out form. Passwords are hashed with salted scrypt, never stored as plaintext
+in the session. The example uses one configurable demo account; it does not
+implement user registration, recovery or permissions.
+
+`sessions(site)` enables server-side sessions with Secure, HttpOnly, SameSite=Lax
+cookies, fixed expiry and CSRF checking on state-changing requests. For local
+HTTP only, use `sessions(site, false)`. The demo selects this using `COOKIE_SECURE`;
+set `COOKIE_SECURE=true` when deploying behind HTTPS. Sessions are in memory and
+are lost on restart; they cannot be shared across multiple processes.
+
+Forms automatically fetch `/_ron/csrf` and supply `X-CSRF-Token`. Custom clients
+must retain the cookie and send that header themselves. Login rotates the session
+identifier and CSRF token; logout invalidates the session. GET handlers must not
+perform state-changing actions. Public download/static routes do not require login.
+
+## Language and tools
+
+See [Language reference](docs/language.md) and [Library reference](docs/library.md).
+
+```powershell
+ron check main.ron
+ron check --json main.ron
+ron fmt main.ron
+ron test .
+```
+
+`check` validates syntax without executing code or importing modules. It does not
+prove that variables, external files, databases or routes exist. `fmt` checks the
+file then rewrites indentation; `test` executes `test_*.ron` files using `require`.
+
+Errors retain source file and original line, including inside functions/modules:
+
+```text
+try
+    require 10 < 5
+catch error
+    show error["message"]
+    show error["file"]
+    show error["line"]
+end
+```
+
+Install the generated VSIX from VS Code's **Extensions: Install from VSIX**.
+It adds highlighting, snippets, simple completions, saved-file syntax diagnostics
+and indentation formatting. Configure `ronlang.executable` if `ron` is not on PATH.
+It does not run CLI tools in untrusted workspaces.
+
+## Data
+
+SQLite uses bound values: `sql(db, "INSERT INTO tasks(title) VALUES (?)", [title])`.
+`migrate(db, "examples/migrations")` applies ordered `.sql` files once and records
+checksums. Each migration is atomic; changed applied files are rejected. End SQL
+statements with `;` and do not add transaction-control statements or trailing
+standalone comments. Migration files are trusted application code.
+
+For PostgreSQL from source: `python -m pip install '.[postgres]'`. Then call
+`postgres(env("DATABASE_URL"), "SELECT %s::text AS name", [name])`.
+The Windows build can bundle the adapter if installed at build time. SQL and
+PostgreSQL connections are opened per operation, not pooled. SQLite migrations
+are not a PostgreSQL migration tool.
+
+Statistics, CSV, vectors, matrices and a basic linear regression model are included;
+see `examples/mathematics.ron`. No generative AI or GPU framework is bundled.
+
+## Deployment and validation
+
+[Deployment guide](docs/deployment.md) describes the Docker/Caddy setup,
+configuration, persistent data and checks. Nothing is deployed automatically.
+[Release checklist](docs/release-checklist.md) separates implemented features
+from remaining validation. [Changes](CHANGELOG.md) records the milestones.
+
+```powershell
+python -m unittest discover -v
+python scripts/benchmark.py
+```
+
+The benchmark reports local timings, not a claim that RonLang is faster than
+Python or another language. CI is configured for Windows/Linux, multiple Python
+versions and a PostgreSQL integration test; its results require an actual CI run.
+
+## Boundaries
+
+The HTTP server is a small threaded server, limited to 32 active workers and
+120 requests per minute per client IP per app. It uses a 1 MiB JSON body limit
+and a 10-second socket-operation timeout. App handlers run serially to protect
+shared interpreter state. These are basic safeguards, not scalability guarantees.
+Behind a reverse proxy, requests share the proxy's IP for this rate limit.
+
+RonLang is not a security sandbox: programs can access files and the network.
+The language has no static type system or memory-safety verification. It is not
+a native systems language, general game engine or large-scale cloud platform.
+TLS is provided by the reverse proxy, not by `serve`. Production use needs
+application-specific security review, monitoring, backups and load tests.

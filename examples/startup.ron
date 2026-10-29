@@ -1,0 +1,39 @@
+# Local application: frontend, API and SQLite storage.
+make db = env("RON_DATABASE", "startup.sqlite3")
+sql(db, "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT NOT NULL)")
+make site = app()
+
+func health(request)
+    return {"status": "ok", "version": "0.5.0"}
+end
+
+func list_tasks(request)
+    return sql(db, "SELECT id, title FROM tasks ORDER BY id")
+end
+
+func create_task(request)
+    make body = request["body"]
+    require valid(body, {"title": "text"})
+    require length(body["title"]) > 0 and length(body["title"]) <= 200
+    sql(db, "INSERT INTO tasks (title) VALUES (?)", [body["title"]])
+    return response({"created": true}, 201)
+end
+
+func delete_task(request)
+    make id = integer(request["params"]["id"])
+    make changed = sql(db, "DELETE FROM tasks WHERE id = ?", [id])
+    when changed == 0
+        return response({"error": "not found"}, 404)
+    end
+    return {"deleted": id}
+end
+
+get(site, "/health", health)
+get(site, "/api/tasks", list_tasks)
+post(site, "/api/tasks", create_task)
+route(site, "DELETE", "/api/tasks/<id>", delete_task)
+make content = heading("My RonLang startup")
+make content = content + form("Create task", "/api/tasks", ["title"], "result")
+make content = content + button("List tasks", "/api/tasks", "result") + output("result")
+get(site, "/", page("RonLang Tasks", content))
+serve(site, integer(env("PORT", "8000")), env("HOST", "127.0.0.1"))

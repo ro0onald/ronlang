@@ -1,0 +1,6 @@
+{
+  "Function": {"prefix": "func", "body": ["func ${1:name}(${2:argument})", "    return ${3:argument}", "end"]},
+  "Condition": {"prefix": "when", "body": ["when ${1:condition}", "    ${2:show \"yes\"}", "otherwise", "    ${3:show \"no\"}", "end"]},
+  "Web application": {"prefix": "web", "body": ["make site = app()", "get(site, \"/\", page(\"${1:Title}\", heading(\"${2:Welcome}\")))", "serve(site, 8000)"]},
+  "Catch error": {"prefix": "try", "body": ["try", "    ${1:require true}", "catch error", "    show error[\"message\"]", "end"]}
+}

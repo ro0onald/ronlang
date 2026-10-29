@@ -1,0 +1,20 @@
+{
+  "name": "ronlang",
+  "displayName": "RonLang",
+  "description": "RonLang highlighting, completions, formatting and syntax diagnostics",
+  "version": "1.0.0-rc.1",
+  "publisher": "ronlang-local",
+  "engines": {"vscode": "^1.85.0"},
+  "categories": ["Programming Languages"],
+  "main": "./extension.js",
+  "activationEvents": ["onLanguage:ronlang"],
+  "capabilities": {"untrustedWorkspaces": {"supported": "limited", "description": "CLI tools run only in trusted workspaces."}},
+  "contributes": {
+    "languages": [{"id": "ronlang", "aliases": ["RonLang"], "extensions": [".ron"], "configuration": "./language-configuration.json"}],
+    "grammars": [{"language": "ronlang", "scopeName": "source.ronlang", "path": "./syntaxes/ronlang.json"}],
+    "snippets": [{"language": "ronlang", "path": "./snippets.json"}],
+    "configuration": {"title": "RonLang", "properties": {
+      "ronlang.executable": {"type": "string", "default": "ron", "description": "Path to the RonLang executable"}
+    }}
+  }
+}

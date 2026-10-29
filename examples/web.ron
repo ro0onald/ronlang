@@ -1,0 +1,14 @@
+# Frontend + JSON backend, with no external dependencies.
+make site = app()
+func hello(request)
+    return {"message": "Hola desde RonLang", "version": "0.3.0"}
+end
+func echo(request)
+    return request["body"]
+end
+get(site, "/api/hello", hello)
+post(site, "/api/echo", echo)
+make content = heading("Mi primera web") + paragraph("Frontend y backend en RonLang")
+make content = content + button("Consultar API", "/api/hello", "result") + output("result")
+get(site, "/", page("RonLang Web", content))
+serve(site, 8000)

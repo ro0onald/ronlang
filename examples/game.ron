@@ -1,0 +1,5 @@
+# Open http://127.0.0.1:8000 after running this program.
+make site = app()
+make scene = game("RonGame: recoge el oro", 800, 450, 260, "cyan")
+get(site, "/", page("RonGame", scene))
+serve(site, 8000)

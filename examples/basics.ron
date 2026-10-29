@@ -1,0 +1,13 @@
+make names = ["Ronald", "Alex"]
+append(names, "Mia")
+for name in names
+    show "Hola, " + name
+end
+make count = 0
+while count < 3
+    show count
+    make count = count + 1
+end
+make person = {"name": "Ronald", "active": true}
+show json(person)
+show not false and 2 ** 3 == 8

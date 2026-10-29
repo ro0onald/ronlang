@@ -1,4 +1,4 @@
-# RonLang 0.3 — Web y juegos 2D
+# RonLang 0.3
 
 RonLang is an experimental programming language designed to be easy to learn
 and readable as it grows.
